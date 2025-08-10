@@ -19,7 +19,7 @@ RUN mkdir -p /app/certs
 
 # SSL 인증서 생성 스크립트 복사 및 실행
 COPY generate_cert.sh /app/
-RUN chmod +x /app/generate_cert.sh && /app/generate_cert.sh
+RUN chmod +x /app/generate_cert.sh && sh /app/generate_cert.sh
 
 # Python 의존성 파일 복사
 COPY requirements.txt .
