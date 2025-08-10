@@ -78,3 +78,7 @@ $env:VITE_API_URL = "http://localhost:5000"; pnpm run dev
 
 <img width="311" height="387" alt="image" src="https://github.com/user-attachments/assets/4a114f81-409a-4b89-b25f-df936e33f8a7" />
 
+## 데이터셋
+* 시사·경제 용어 사전
+[(https://econedu.go.kr/user/playEcon/currEconTermDoc/menu/list)](https://econedu.go.kr/user/playEcon/currEconTermDoc/menu/list)
+
