@@ -27,4 +27,11 @@ cd frontend
 pnpm install
 $env:VITE_API_URL = "http://localhost:5000"; pnpm run dev
 ```
+## 기능
+### 1. 툴바
+<img width="1207" height="169" alt="image" src="https://github.com/user-attachments/assets/dcb516ba-d743-43a5-bee2-4c3346ef5075" />
+
+### 2. 익스텐션 팝업
+<img width="311" height="387" alt="image" src="https://github.com/user-attachments/assets/ca6c9cd6-b6f4-433d-b559-7b92c6953499" />
+
 
