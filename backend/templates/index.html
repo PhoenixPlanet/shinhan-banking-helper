@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>금융 용어 분류기 & 정의 검색</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-container {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result {
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .result.financial {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .result.non-financial {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .result.definition {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            text-align: left;
+        }
+
+        .result h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .result p {
+            margin-bottom: 10px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            transition: width 0.5s ease;
+        }
+
+        .definition-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .definition-term {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .definition-text {
+            line-height: 1.6;
+        }
+
+        .similarity-score {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .examples {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .example-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .example-item {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .example-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .example-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💰 금융 용어 도구</h1>
+        <p class="subtitle">금융 용어 분류 및 정의 검색</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('classify')">분류하기</button>
+            <button class="tab" onclick="switchTab('definition')">정의 검색</button>
+            <button class="tab" onclick="switchTab('image')">이미지 분석</button>
+            <button class="tab" onclick="switchTab('menu')">메뉴 찾기</button>
+        </div>
+
+        <!-- 분류 탭 -->
+        <div id="classify-tab" class="tab-content active">
+            <div class="input-group">
+                <textarea id="termInput"
+                    placeholder="분류할 단어들을 입력하세요...&#10;한 줄에 하나씩 입력하거나 쉼표로 구분하세요&#10;예시:&#10;주식&#10;채권&#10;사과, 컴퓨터, 투자"
+                    rows="8"></textarea>
+                <button onclick="classifyTerms()" id="classifyBtn">일괄 분류하기</button>
+            </div>
+
+            <div class="loading" id="classifyLoading">
+                <div class="spinner"></div>
+                <p>분류 중...</p>
+            </div>
+
+            <div class="results-container" id="classifyResultsContainer">
+                <!-- 분류 결과들이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <div class="examples">
+                <h3>💡 분류 테스트 예시</h3>
+                <div class="example-list">
+                    <div class="example-item" onclick="setExample('주식\n채권\n펀드\n보험')">금융 용어들</div>
+                    <div class="example-item" onclick="setExample('사과\n컴퓨터\n책상\n의자')">일반 용어들</div>
+                    <div class="example-item" onclick="setExample('투자, 저축, 대출, 예금')">혼합 용어들</div>
+                    <div class="example-item" onclick="setExample('주식\n사과\n채권\n컴퓨터\n펀드')">금융+일반 혼합</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 정의 검색 탭 -->
+        <div id="definition-tab" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="definitionInput" placeholder="검색할 금융 용어를 입력하세요... (예: 주식, 채권, 펀드)"
+                    onkeypress="if(event.keyCode==13) searchDefinition()">
+                <button onclick="searchDefinition()" id="searchBtn">정의 검색</button>
+            </div>
+
+            <div class="loading" id="definitionLoading">
+                <div class="spinner"></div>
+                <p>검색 중...</p>
+            </div>
+
+            <div class="results-container" id="definitionResultsContainer">
+                <!-- 정의 검색 결과들이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <div class="examples">
+                <h3>💡 정의 검색 예시</h3>
+                <div class="example-list">
+                    <div class="example-item" onclick="setDefinitionExample('주식')">주식</div>
+                    <div class="example-item" onclick="setDefinitionExample('채권')">채권</div>
+                    <div class="example-item" onclick="setDefinitionExample('펀드')">펀드</div>
+                    <div class="example-item" onclick="setDefinitionExample('보험')">보험</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 이미지 분석 탭 -->
+        <div id="image-tab" class="tab-content">
+            <div class="input-group">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <button onclick="document.getElementById('imageInput').click()" style="margin-right: 10px;">📷 이미지 선택</button>
+                    <button onclick="analyzeImage()" id="analyzeBtn" disabled>🔍 이미지 분석</button>
+                </div>
+                <div id="imagePreview" style="display: none; text-align: center; margin: 20px 0;">
+                    <img id="previewImg" style="max-width: 100%; max-height: 300px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+
+            <div class="loading" id="imageLoading">
+                <div class="spinner"></div>
+                <p>이미지 분석 중...</p>
+            </div>
+
+            <div class="results-container" id="imageResultsContainer">
+                <!-- 이미지 분석 결과들이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <div class="examples">
+                <h3>💡 이미지 분석 안내</h3>
+                <div style="text-align: left; color: #666; line-height: 1.6;">
+                    <p>• 은행 웹사이트 스크린샷을 업로드하면 텍스트를 자동으로 인식합니다</p>
+                    <p>• 인식된 금융 용어의 의미를 쉽게 설명해드립니다</p>
+                    <p>• 지원 형식: JPG, PNG, GIF 등 일반적인 이미지 파일</p>
+                    <p>• 텍스트가 선명하게 보이는 이미지를 사용하세요</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메뉴 찾기 탭 -->
+        <div id="menu-tab" class="tab-content">
+            <div class="input-group">
+                <input type="text" id="menuInput" placeholder="원하는 은행 서비스를 자연어로 입력하세요... (예: 계좌 잔액 확인, 이체하기, 대출 신청)"
+                    onkeypress="if(event.keyCode==13) findMenu()">
+                <button onclick="findMenu()" id="findMenuBtn">🔍 메뉴 찾기</button>
+            </div>
+
+            <div class="loading" id="menuLoading">
+                <div class="spinner"></div>
+                <p>메뉴 검색 중...</p>
+            </div>
+
+            <div class="results-container" id="menuResultsContainer">
+                <!-- 메뉴 찾기 결과들이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <div class="examples">
+                <h3>💡 메뉴 찾기 예시</h3>
+                <div class="example-list">
+                    <div class="example-item" onclick="setMenuExample('계좌 잔액을 확인하고 싶어요')">계좌 잔액 확인</div>
+                    <div class="example-item" onclick="setMenuExample('이체를 하고 싶어요')">이체하기</div>
+                    <div class="example-item" onclick="setMenuExample('대출을 신청하고 싶어요')">대출 신청</div>
+                    <div class="example-item" onclick="setMenuExample('환율을 확인하고 싶어요')">환율 확인</div>
+                    <div class="example-item" onclick="setMenuExample('보안 설정을 변경하고 싶어요')">보안 설정</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // 모든 탭 비활성화
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // 선택된 탭 활성화
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        function setExample(terms) {
+            document.getElementById('termInput').value = terms;
+        }
+
+        function setDefinitionExample(term) {
+            document.getElementById('definitionInput').value = term;
+        }
+
+        function parseTerms(input) {
+            // 줄바꿈과 쉼표로 구분된 단어들을 파싱
+            const lines = input.split('\n');
+            const terms = [];
+
+            lines.forEach(line => {
+                const lineTerms = line.split(',').map(term => term.trim()).filter(term => term.length > 0);
+                terms.push(...lineTerms);
+            });
+
+            return terms;
+        }
+
+        async function classifyTerms() {
+            const input = document.getElementById('termInput').value.trim();
+
+            if (!input) {
+                alert('단어를 입력해주세요.');
+                return;
+            }
+
+            const terms = parseTerms(input);
+
+            if (terms.length === 0) {
+                alert('유효한 단어를 입력해주세요.');
+                return;
+            }
+
+            const classifyBtn = document.getElementById('classifyBtn');
+            const loading = document.getElementById('classifyLoading');
+            const resultsContainer = document.getElementById('classifyResultsContainer');
+
+            // UI 상태 변경
+            classifyBtn.disabled = true;
+            loading.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
+
+            try {
+                // 배치 API 사용
+                const response = await fetch('/classify_batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ terms: terms })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayClassifyResults(data.results);
+                } else {
+                    alert('오류가 발생했습니다: ' + data.error);
+                }
+            } catch (error) {
+                alert('서버 연결에 실패했습니다.');
+                console.error('Error:', error);
+            } finally {
+                classifyBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayClassifyResults(results) {
+            const resultsContainer = document.getElementById('classifyResultsContainer');
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<p>결과가 없습니다.</p>';
+                resultsContainer.style.display = 'block';
+                return;
+            }
+
+            resultsContainer.innerHTML = '';
+
+            results.forEach((data, index) => {
+                const resultDiv = document.createElement('div');
+
+                if (data.error) {
+                    // 오류가 있는 경우
+                    resultDiv.className = 'result non-financial';
+                    resultDiv.innerHTML = `
+                        <h3>❌ 오류 발생</h3>
+                        <p><strong>"${data.term}"</strong> 처리 중 오류가 발생했습니다.</p>
+                        <p>오류: ${data.error}</p>
+                    `;
+                } else {
+                    // 정상 결과
+                    const isFinancial = data.is_financial;
+                    const confidence = data.confidence;
+                    const threshold = data.threshold;
+
+                    resultDiv.className = 'result ' + (isFinancial ? 'financial' : 'non-financial');
+
+                    let resultTitle, resultText;
+                    if (isFinancial) {
+                        resultTitle = '✅ 금융 용어입니다!';
+                        resultText = `"${data.term}"은(는) 금융 분야에서 사용되는 용어입니다.`;
+                    } else {
+                        resultTitle = '❌ 금융 용어가 아닙니다';
+                        resultText = `"${data.term}"은(는) 일반적인 용어입니다.`;
+                    }
+
+                    const confidencePercent = (confidence * 100).toFixed(1);
+
+                    resultDiv.innerHTML = `
+                        <h3>${resultTitle}</h3>
+                        <p>${resultText}</p>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${confidence * 100}%"></div>
+                        </div>
+                        <p>신뢰도: ${confidencePercent}% (임계값: ${(threshold * 100).toFixed(1)}%)</p>
+                    `;
+                }
+
+                resultsContainer.appendChild(resultDiv);
+            });
+
+            resultsContainer.style.display = 'block';
+        }
+
+        async function searchDefinition() {
+            const term = document.getElementById('definitionInput').value.trim();
+
+            if (!term) {
+                alert('검색할 용어를 입력해주세요.');
+                return;
+            }
+
+            const searchBtn = document.getElementById('searchBtn');
+            const loading = document.getElementById('definitionLoading');
+            const resultsContainer = document.getElementById('definitionResultsContainer');
+
+            // UI 상태 변경
+            searchBtn.disabled = true;
+            loading.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
+
+            try {
+                const response = await fetch(`/fin_term_definition?term=${encodeURIComponent(term)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayDefinitionResults(data.results, term);
+                } else {
+                    displayDefinitionError(data.error, term);
+                }
+            } catch (error) {
+                alert('서버 연결에 실패했습니다.');
+                console.error('Error:', error);
+            } finally {
+                searchBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayDefinitionResults(results, searchTerm) {
+            const resultsContainer = document.getElementById('definitionResultsContainer');
+
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="result definition">
+                        <h3>🔍 검색 결과</h3>
+                        <p>"${searchTerm}"에 대한 정의를 찾을 수 없습니다.</p>
+                    </div>
+                `;
+                resultsContainer.style.display = 'block';
+                return;
+            }
+
+            resultsContainer.innerHTML = '';
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result definition';
+
+            let html = `<h3>📖 "${searchTerm}" 관련 금융 용어 정의</h3>`;
+
+            results.forEach((item, index) => {
+                const similarityPercent = (item.score).toFixed(1);
+                html += `
+                    <div class="definition-item">
+                        <div class="definition-term">${item.term}</div>
+                        <div class="definition-text">${item.definition}</div>
+                        <div class="similarity-score">유사도: ${similarityPercent}%</div>
+                    </div>
+                `;
+            });
+
+            resultDiv.innerHTML = html;
+            resultsContainer.appendChild(resultDiv);
+            resultsContainer.style.display = 'block';
+        }
+
+        function displayDefinitionError(error, searchTerm) {
+            const resultsContainer = document.getElementById('definitionResultsContainer');
+
+            resultsContainer.innerHTML = `
+                <div class="result definition">
+                    <h3>❌ 검색 오류</h3>
+                    <p>"${searchTerm}" 검색 중 오류가 발생했습니다.</p>
+                    <p>오류: ${error}</p>
+                </div>
+            `;
+            resultsContainer.style.display = 'block';
+        }
+
+        // Ctrl+Enter로 일괄 분류 실행
+        document.getElementById('termInput').addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                classifyTerms();
+            }
+        });
+
+        // Enter로 정의 검색 실행
+        document.getElementById('definitionInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                searchDefinition();
+            }
+        });
+
+        // 이미지 업로드 관련 변수
+        let selectedImageData = null;
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 파일 크기 체크 (5MB 제한)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('파일 크기는 5MB 이하여야 합니다.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedImageData = e.target.result;
+                
+                // 미리보기 표시
+                const previewImg = document.getElementById('previewImg');
+                const imagePreview = document.getElementById('imagePreview');
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                
+                previewImg.src = selectedImageData;
+                imagePreview.style.display = 'block';
+                analyzeBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function analyzeImage() {
+            if (!selectedImageData) {
+                alert('이미지를 선택해주세요.');
+                return;
+            }
+
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loading = document.getElementById('imageLoading');
+            const resultsContainer = document.getElementById('imageResultsContainer');
+
+            // UI 상태 변경
+            analyzeBtn.disabled = true;
+            loading.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
+
+            try {
+                const response = await fetch('/define_term_image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: selectedImageData })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayImageAnalysisResult(data);
+                } else {
+                    displayImageAnalysisError(data.error);
+                }
+            } catch (error) {
+                alert('서버 연결에 실패했습니다.');
+                console.error('Error:', error);
+            } finally {
+                analyzeBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayImageAnalysisResult(data) {
+            const resultsContainer = document.getElementById('imageResultsContainer');
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result definition';
+
+            let html = `
+                <h3>🔍 이미지 분석 결과</h3>
+                <div class="definition-item">
+                    <div class="definition-term">인식된 용어: ${data.term}</div>
+                    <div class="definition-text"><strong>정의:</strong> ${data.definition}</div>
+                    <div style="margin-top: 10px;">
+                        <strong>카테고리:</strong> ${data.category}<br>
+                        <strong>이해 난이도:</strong> ${data.difficulty}
+                    </div>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultsContainer.appendChild(resultDiv);
+            resultsContainer.style.display = 'block';
+        }
+
+        function displayImageAnalysisError(error) {
+            const resultsContainer = document.getElementById('imageResultsContainer');
+
+            resultsContainer.innerHTML = `
+                <div class="result definition">
+                    <h3>❌ 이미지 분석 오류</h3>
+                    <p>이미지 분석 중 오류가 발생했습니다.</p>
+                    <p>오류: ${error}</p>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        • 텍스트가 선명하게 보이는 이미지인지 확인해주세요<br>
+                        • 다른 이미지를 시도해보세요
+                    </p>
+                </div>
+            `;
+            resultsContainer.style.display = 'block';
+        }
+
+        // 메뉴 찾기 관련 함수들
+        async function findMenu() {
+            const menuInput = document.getElementById('menuInput');
+            const findMenuBtn = document.getElementById('findMenuBtn');
+            const loading = document.getElementById('menuLoading');
+            const resultsContainer = document.getElementById('menuResultsContainer');
+
+            const request = menuInput.value.trim();
+            if (!request) {
+                alert('원하는 서비스를 입력해주세요.');
+                return;
+            }
+
+            // UI 상태 변경
+            findMenuBtn.disabled = true;
+            loading.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
+
+            try {
+                const response = await fetch('/find_menu', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ request: request })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    displayMenuResult(data.result);
+                } else {
+                    displayMenuError(data.message || '메뉴를 찾을 수 없습니다.');
+                }
+            } catch (error) {
+                alert('서버 연결에 실패했습니다.');
+                console.error('Error:', error);
+            } finally {
+                findMenuBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayMenuResult(result) {
+            const resultsContainer = document.getElementById('menuResultsContainer');
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result definition';
+
+            let html = `
+                <h3>🎯 찾은 메뉴</h3>
+                <div class="definition-item">
+                    <div class="definition-term">선택된 메뉴: ${result.selected_menu}</div>
+                    <div style="margin-top: 10px;">
+                        <strong>메뉴 경로:</strong> ${result.category} > ${result.selected_menu}<br>
+                        <strong>설명:</strong> ${result.description}
+                    </div>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultsContainer.appendChild(resultDiv);
+            resultsContainer.style.display = 'block';
+        }
+
+        function displayMenuError(error) {
+            const resultsContainer = document.getElementById('menuResultsContainer');
+
+            resultsContainer.innerHTML = `
+                <div class="result definition">
+                    <h3>❌ 메뉴 찾기 오류</h3>
+                    <p>${error}</p>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        • 다른 표현으로 다시 시도해보세요<br>
+                        • 예시를 참고하여 입력해보세요
+                    </p>
+                </div>
+            `;
+            resultsContainer.style.display = 'block';
+        }
+
+        function setMenuExample(example) {
+            document.getElementById('menuInput').value = example;
+        }
+    </script>
+</body>
+
+</html>
