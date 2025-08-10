@@ -29,9 +29,26 @@ $env:VITE_API_URL = "http://localhost:5000"; pnpm run dev
 ```
 ## 기능
 ### 1. 툴바
-<img width="1207" height="169" alt="image" src="https://github.com/user-attachments/assets/dcb516ba-d743-43a5-bee2-4c3346ef5075" />
+툴바를 통해 용어 알아보기, 메뉴 찾기 등의 기능을 빠르게 실행할 수 있습니다.
+
+<img width="700" height="169" alt="image" src="https://github.com/user-attachments/assets/dcb516ba-d743-43a5-bee2-4c3346ef5075" />
 
 ### 2. 익스텐션 팝업
+익스텐션 팝업을 통해서도 기능들을 실행할 수 있습니다.
+
 <img width="311" height="387" alt="image" src="https://github.com/user-attachments/assets/ca6c9cd6-b6f4-433d-b559-7b92c6953499" />
 
+### 3. 사용자가 커서를 올려놓았을 때 용어 툴팁
+파인튜닝된 BERT 모델을 통해 금융용어로 판별된 단어의 경우 사용자가 커서를 올려놓았을 때 툴팁 모달이 표시됩니다.
 
+<img width="311" height="387" alt="image" src="https://github.com/user-attachments/assets/e2704363-0e49-4639-a763-6bf64f611015" />
+
+### 4. 캡쳐를 통해 용어 알아보기
+'용어 알아보기' 버튼을 클릭하였을 때 사용자가 원하는 부분을 캡쳐할 수 있도록 UI가 제공되며, 캡쳐된 이미지는 Gemini API를 통해 분석되어 해당 이미지에 포함된 용어에 대한 설명이 표시됩니다. 
+
+<img width="311" height="387" alt="image" src="https://github.com/user-attachments/assets/524c571d-0655-4d7c-b475-1ef550fa0d99" />
+
+### 5. 자연어로 원하는 메뉴 찾기
+사용자가 자연어로 원하는 메뉴에 대해 검색하면, 가장 가까운 메뉴와 후보 메뉴들을 표시하며, 바로 해당 메뉴로 이동할 수도 있습니다.
+
+<img width="311" height="387" alt="image" src="https://github.com/user-attachments/assets/4a114f81-409a-4b89-b25f-df936e33f8a7" />
